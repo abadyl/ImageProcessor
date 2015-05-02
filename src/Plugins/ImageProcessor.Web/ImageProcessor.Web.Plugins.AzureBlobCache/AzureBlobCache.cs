@@ -335,14 +335,14 @@ namespace ImageProcessor.Web.Plugins.AzureBlobCache
         public override void RewritePath(HttpContext context)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.cachedRewritePath);
-            request.Method = "HEAD";
+
+            request.Method = "GET";
 
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             {
-                HttpStatusCode responseCode = response.StatusCode;
-                context.Response.Redirect(
-                    responseCode == HttpStatusCode.NotFound ? this.CachedPath : this.cachedRewritePath,
-                    false);
+                Stream cachedStream = response.GetResponseStream();
+
+                cachedStream.CopyTo(context.Response.OutputStream);
             }
         }
     }
